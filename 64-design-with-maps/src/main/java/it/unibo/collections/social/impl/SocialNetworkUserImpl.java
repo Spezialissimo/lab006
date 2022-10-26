@@ -7,13 +7,12 @@ import it.unibo.collections.social.api.SocialNetworkUser;
 import it.unibo.collections.social.api.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 
@@ -36,7 +35,7 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      * In order to save the people followed by a user organized in groups, adopt
      * a generic-type Map:  think of what type of keys and values would best suit the requirements
      */
-
+    final private Map<String, List<U>> followedUsersInGroups = new HashMap<>();
     /*
      * [CONSTRUCTORS]
      *
@@ -62,12 +61,15 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      *            application
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
-        super(null, null, null, 0);
+        super(name, surname, user, userAge);
     }
 
     /*
      * 2) Define a further constructor where the age defaults to -1
      */
+    public SocialNetworkUserImpl(final String name, final String surname, final String user) {
+        super(name, surname, user, -1);
+    }
 
     /*
      * [METHODS]
@@ -76,7 +78,13 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+        if (this.followedUsersInGroups.containsKey(circle)) {
+            this.followedUsersInGroups.get(circle).add(user);
+            return true;
+        } else {
+            this.followedUsersInGroups.put(circle, new ArrayList<>(Arrays.asList(user)));
+            return false;
+        }
     }
 
     /**
@@ -86,11 +94,27 @@ public final class SocialNetworkUserImpl<U extends User> extends UserImpl implem
      */
     @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+        return getCollectionUsersInGroup(groupName);
     }
 
     @Override
     public List<U> getFollowedUsers() {
-        return null;
+        return getListUsers();
+    }
+
+    private List<U> getListUsers() {
+        final List<U> followedUsers = new ArrayList<>();
+        for (List<U> usersInGroup : this.followedUsersInGroups.values()) {
+            followedUsers.addAll(usersInGroup);
+        }
+        return followedUsers;
+    }
+
+    private Collection<U> getCollectionUsersInGroup(final String groupName) {
+        if (this.followedUsersInGroups.containsKey(groupName)) {
+            return new HashSet<U>(this.followedUsersInGroups.get(groupName));
+        } else {
+            return new HashSet<U>();
+        }
     }
 }
