@@ -1,13 +1,15 @@
 package it.unibo.exceptions.impl_exceptions;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class NetworkException extends IOException {
     public NetworkException() {
-        System.out.println("Network error: no response");
+        super("Network error: no response");
     }
 
     public NetworkException(final String message) {
-        System.out.println("Network error while sending message: " + message);
+        super("Network error while sending message: " + message);
+        Objects.requireNonNull(message);
     }
 }
